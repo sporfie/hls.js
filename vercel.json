@@ -1,13 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build",
-  "outputDirectory": ".",
+  "buildCommand": "npm run build && bash ./scripts/build-vercel.sh",
+  "outputDirectory": "vercel-output",
   "installCommand": "npm ci --force",
-  "framework": null,
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/demo/"
-    }
-  ]
+  "framework": null
 }
