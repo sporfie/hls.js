@@ -27,6 +27,7 @@ export default async function handler(req, res) {
       {
         headers: {
           'x-jwt': API_JWT_BYPASS,
+          'Referer': 'https://www.sporfie.com',
         },
       }
     );
