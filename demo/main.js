@@ -120,6 +120,9 @@ $(document).ready(function () {
     }
   });
 
+  // Fetch and populate Sporfie events
+  loadSporfieEvents();
+
   const videoWidth = video.style.width;
   if (videoWidth) {
     $('#videoSize option').each(function (i, option) {
@@ -137,7 +140,18 @@ $(document).ready(function () {
     selectedTestStream = testStreams[key];
     const streamUrl = selectedTestStream.url;
     $('#streamURL').val(streamUrl);
+    $('#sporfieEventSelect').val(''); // Reset Sporfie selector
     loadSelectedStream();
+  });
+
+  $('#sporfieEventSelect').change(function () {
+    const streamUrl = $(this).val();
+    if (streamUrl) {
+      $('#streamURL').val(streamUrl);
+      $('#streamSelect').val(''); // Reset test stream selector
+      selectedTestStream = null;
+      loadSelectedStream();
+    }
   });
 
   $('#streamURL').change(function () {
@@ -1833,4 +1847,43 @@ function logStatus(message) {
 
 function logError(message) {
   appendLog('errorOut', message);
+}
+
+async function loadSporfieEvents() {
+  try {
+    const response = await fetch('/api/events');
+    if (!response.ok) {
+      console.warn('Failed to load Sporfie events:', response.statusText);
+      return;
+    }
+    const data = await response.json();
+    const events = data.results || [];
+    
+    // Filter to only live events with streams
+    const liveEvents = events.filter(
+      (event) => event.isLive && event.liveStreams && event.liveStreams.length > 0
+    );
+
+    liveEvents.forEach((event) => {
+      // Add each live stream as an option
+      event.liveStreams.forEach((stream, streamIndex) => {
+        const streamLabel = event.liveStreams.length > 1 
+          ? `${event.name} - Stream ${streamIndex + 1}` 
+          : event.name;
+        const displayName = event.companyName 
+          ? `${event.companyName}: ${streamLabel}`
+          : streamLabel;
+        const option = new Option(displayName, stream.liveURL);
+        $('#sporfieEventSelect').append(option);
+      });
+    });
+
+    if (liveEvents.length === 0) {
+      const option = new Option('No live events available', '');
+      option.disabled = true;
+      $('#sporfieEventSelect').append(option);
+    }
+  } catch (error) {
+    console.warn('Error loading Sporfie events:', error);
+  }
 }

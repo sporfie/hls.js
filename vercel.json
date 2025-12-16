@@ -3,5 +3,17 @@
   "buildCommand": "npm run build && bash ./scripts/build-vercel.sh",
   "outputDirectory": "vercel-output",
   "installCommand": "npm ci --force",
-  "framework": null
+  "framework": null,
+  "functions": {
+    "api/events.js": {
+      "memory": 128,
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/events",
+      "destination": "/api/events.js"
+    }
+  ]
 }
